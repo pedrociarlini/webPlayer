@@ -64,4 +64,11 @@ public class Musica implements Serializable {
 		this.pastaPai = pastaPai;
 	}
 
+	@Override
+	public String toString() {
+		return "Musica [nome=" + nome + ", caminhoCompleto=" + caminhoCompleto + "]";
+	}
+	
+	
+
 }

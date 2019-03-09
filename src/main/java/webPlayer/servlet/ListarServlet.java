@@ -19,10 +19,6 @@ public class ListarServlet extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		// Writer w = resp.getWriter();
 		req.getRequestDispatcher("listar.jsp").forward(req, resp);
-		// w.write("WebPlayer 0.1 BETA.\n");
-		// w.flush();
-		// w.close();
 	}
 }

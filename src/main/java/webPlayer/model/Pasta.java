@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class Pasta implements Serializable, Comparable<Pasta> {
 
 	/**
@@ -21,6 +23,12 @@ public class Pasta implements Serializable, Comparable<Pasta> {
 
 	private List<Pasta> pastas = new Vector<Pasta>();
 
+	private int profundidade = 0;
+
+	// TOOD implementar validação de quantidade de músicas de subpastas, para
+	// remover pasta
+	// private int qtdeMusicasSubPastas = 0;
+
 	public Pasta() {
 	}
 
@@ -28,7 +36,8 @@ public class Pasta implements Serializable, Comparable<Pasta> {
 		this();
 		this.nome = nome;
 		this.caminhoCompleto = caminhoCompleto;
-		this.pastaPai = pastaPai;
+		setPastaPai(pastaPai);
+
 	}
 
 	public boolean isRaiz() {
@@ -41,6 +50,9 @@ public class Pasta implements Serializable, Comparable<Pasta> {
 
 	public void setPastaPai(Pasta pastaPai) {
 		this.pastaPai = pastaPai;
+		if (pastaPai != null) {
+			this.profundidade = pastaPai.getProfundidade() + 1;
+		}
 	}
 
 	public List<Musica> getMusicas() {
@@ -73,6 +85,10 @@ public class Pasta implements Serializable, Comparable<Pasta> {
 
 	public void setPastas(List<Pasta> pastas) {
 		this.pastas = pastas;
+	}
+
+	public int getProfundidade() {
+		return profundidade;
 	}
 
 	@Override
@@ -108,8 +124,9 @@ public class Pasta implements Serializable, Comparable<Pasta> {
 
 	@Override
 	public String toString() {
-		return Pasta.class.getName() + " [ musicas: " + musicas.size() + ";\npastas: " + pastas.size() + "\t" + pastas
-				+ "\n]";
+		String identacao = StringUtils.repeat("\t", profundidade);
+		return identacao + Pasta.class.getCanonicalName() + " [ musicas: " + musicas.size() + ";\n\t" + identacao
+				+ "pastas: " + pastas.size() + pastas + "\n]";
 	}
 
 	@Override
