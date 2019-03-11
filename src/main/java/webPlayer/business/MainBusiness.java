@@ -20,12 +20,18 @@ import webPlayer.model.Pasta;
 @Singleton
 public class MainBusiness {
 
-	private String diretorio = "";
+	private static String diretorio = "";
 
-	private Pasta pastaRaiz = new Pasta();
+	/**
+	 * DATABASE
+	 */
+	private static Pasta pastaRaiz = new Pasta();
+
+	private static String musicaTocando = "";
 
 	private static final Logger log = Logger.getLogger(MainBusiness.class);
 
+	@SuppressWarnings("static-access")
 	public void alterarDiretorio(String novoDiretorio) {
 		File rootDir = new File(novoDiretorio);
 		if (!rootDir.exists()) {
@@ -70,27 +76,36 @@ public class MainBusiness {
 					pastasAPercorrer.add(novaPAsta);
 				}
 			}
-
-			log.info("Músicas atualizdas: " + qtdeMusicas + " músicas");
 		}
-
-		// FilenameFilter filter = new MusicaFilenameFilter();
-		// final File[] musicas = new
-		// File(pastaCorrente.getCaminhoCompleto()).listFiles(filter);
-		// for (File musica : musicas) {
-		// pastaCorrente.getMusicas().add(new Musica(musica.getName(),
-		// musica.getName(), musica.getAbsolutePath()));
-		// }
+		log.info("Músicas atualizdas: " + qtdeMusicas + " músicas");
 	}
 
 	public String getDiretorio() {
-		return this.diretorio;
+		return MainBusiness.diretorio;
 	}
 
 	public List<Musica> listarTodasAsMusicas() {
 		List<Musica> result = new ArrayList<Musica>();
-		result.add(new Musica("Teste", "Teste", "teste"));
+		Queue<Pasta> pastasAListar = new PriorityQueue<Pasta>();
+		pastasAListar.add(pastaRaiz);
+
+		while (!pastasAListar.isEmpty()) {
+			Pasta pastaCorrente = pastasAListar.poll();
+			result.addAll(pastaCorrente.getMusicas());
+			if (!pastaCorrente.getPastas().isEmpty()) {
+				pastasAListar.addAll(pastaCorrente.getPastas());
+			}
+		}
+
 		return result;
+	}
+
+	public String getMusicaTocando() {
+		return MainBusiness.musicaTocando;
+	}
+
+	public void setMusicaTocando(String musicaTocando) {
+		MainBusiness.musicaTocando = musicaTocando;
 	}
 
 }

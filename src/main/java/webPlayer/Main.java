@@ -15,12 +15,12 @@ import webPlayer.audio.Player;
 import webPlayer.servlet.DiretorioServlet;
 import webPlayer.servlet.ListarServlet;
 import webPlayer.servlet.RootServlet;
-import webPlayer.servlet.StopMusicaServlet;
 import webPlayer.servlet.TocarMusicaServlet;
 
 @Named
 @Singleton
 public class Main {
+
 	public static void main(String[] args) throws LifecycleException {
 		Weld weld = new Weld();
 		WeldContainer container = weld.initialize();
@@ -30,6 +30,15 @@ public class Main {
 
 	@Inject
 	private DiretorioServlet diretorioServlet;
+
+	@Inject
+	private ListarServlet listarServlet;
+
+	@Inject
+	private TocarMusicaServlet tocarMusicaServlet;
+
+	@Inject
+	private RootServlet rootServlet;
 
 	@PostConstruct
 	public void startup() {
@@ -43,25 +52,21 @@ public class Main {
 		System.out.println("context path: " + Main.class.getClassLoader().getResource(".").getFile());
 		System.out.println("context path: " + ctx.getCatalinaBase().getAbsolutePath());
 
+		// ROOT
+		Tomcat.addServlet(ctx, "rootServlet", rootServlet);
+		ctx.addServletMappingDecoded("", "rootServlet");
+
 		// escolher diretorio
 		Tomcat.addServlet(ctx, "diretorioServlet", diretorioServlet);
 		ctx.addServletMappingDecoded("/diretorio", "diretorioServlet");
 
 		// Listar músicas
-		Tomcat.addServlet(ctx, "listarServlet", new ListarServlet());
+		Tomcat.addServlet(ctx, "listarServlet", listarServlet);
 		ctx.addServletMappingDecoded("/listar", "listarServlet");
 
-		// Listar músicas
-		Tomcat.addServlet(ctx, "rootServlet", new RootServlet());
-		ctx.addServletMappingDecoded("/", "rootServlet");
-
 		// Tocar música
-		Tomcat.addServlet(ctx, "tocarServlet", new TocarMusicaServlet());
+		Tomcat.addServlet(ctx, "tocarServlet", tocarMusicaServlet);
 		ctx.addServletMappingDecoded("/tocar", "tocarServlet");
-
-		// Parar música
-		Tomcat.addServlet(ctx, "pararServlet", new StopMusicaServlet());
-		ctx.addServletMappingDecoded("/parar", "pararServlet");
 
 		try {
 			tomcat.start();

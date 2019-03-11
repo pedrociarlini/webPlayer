@@ -3,19 +3,26 @@
 
 <jsp:useBean id="mainBuss" class="webPlayer.business.MainBusiness"></jsp:useBean>
 
-<body>
-<script type="text/javascript">
-	document.title = "Músicas :: " + document.title;  
-</script>
-	<div id="musicas">
-		<form action="/tocar" method="post">
-			<c:forEach items="${mainBuss.listarTodasAsMusicas()}" var="musica">
-				${musica.nome} - ${musica.caminhoCompleto}
-			</c:forEach>
-		</form>
+<div id="body">
+	<script type="text/javascript">
+		document.title = "Músicas :: " + document.title;
+	</script>
+	<form action="/tocar" method="post">
+		<input type="hidden" name="comando" value="tocar">
+		<div id="musicas">
+			<c:if test="${empty mainBuss.diretorio}" var="semMusica">
+				Diretório ainda não configurado.
+			</c:if>
+			<c:if test="${!semMusica}">
+				<c:forEach items="${mainBuss.listarTodasAsMusicas()}" var="musica">
+					<span class="musica">${musica.nome} <input type="submit" name="caminhoCompleto"
+						value="${musica.caminhoCompleto}">
+					</span>
+				</c:forEach>
+			</c:if>
 
-	</div>
 
-	<jsp:include page="footer.jsp"></jsp:include>
-</body>
-</html>
+		</div>
+	</form>
+</div>
+<jsp:include page="footer.jsp"></jsp:include>

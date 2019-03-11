@@ -1,18 +1,25 @@
 package webPlayer.servlet;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import webPlayer.audio.Player;
+import webPlayer.business.MainBusiness;
 
+@Named
 public class TocarMusicaServlet extends HttpServlet {
 
 	private Player player = Player.getInstance();
+
+	@Inject
+	private MainBusiness mainBuss;
 
 	/**
 	 * 
@@ -21,11 +28,26 @@ public class TocarMusicaServlet extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String musicPath = "/Users/pedrociarlini/Downloads/A cuca te pega.mp3";
-		player.playMusic(musicPath);
-		Writer w = resp.getWriter();
-		w.write("Tocando..." + musicPath);
-		w.flush();
-		w.close();
+		String comando = req.getParameter("comando");
+
+		if (comando != null && !comando.isEmpty()) {
+			if (comando.equals("tocar")) {
+				String musicPath = req.getParameter("caminhoCompleto");
+				if (musicPath != null & new File(musicPath).exists()) {
+					player.playMusic(musicPath);
+					mainBuss.setMusicaTocando(musicPath);
+				}
+			} else if (comando.equals("Pause")) {
+				player.pause();
+			} else if (comando.equals("Play")) {
+				player.play();
+			} else if (comando.equals("Baixar volume")) {
+				player.setVolume(player.getVolume() - 0.05D);
+			} else if (comando.equals("Aumentar volume")) {
+				player.setVolume(player.getVolume() + 0.05D);
+			}
+		}
+		req.getRequestDispatcher("tocar.jsp").forward(req, resp);
+
 	}
 }
