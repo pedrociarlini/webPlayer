@@ -1,14 +1,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<br>
-<br>
+
 <div id="errorMsg">
 	<c:if test="${not empty param.erro}">
 		<c:out value="${param.erro}" />
 	</c:if>
 </div>
 
-<div class="footer">
+<%--Essa div abre no header --%>
+</div>
+<div class="panel-footer footer text-center">
 	<em>Feito por Pedro Ciarlini (C)</em>
+</div>
+</div>
 </div>
 </body>
 </html>

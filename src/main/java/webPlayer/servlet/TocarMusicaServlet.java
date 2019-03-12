@@ -16,7 +16,8 @@ import webPlayer.business.MainBusiness;
 @Named
 public class TocarMusicaServlet extends HttpServlet {
 
-	private Player player = Player.getInstance();
+	@Inject
+	private Player player;
 
 	@Inject
 	private MainBusiness mainBuss;
@@ -28,6 +29,8 @@ public class TocarMusicaServlet extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		req.getServletContext().setAttribute("mainBuss", mainBuss);
+
 		String comando = req.getParameter("comando");
 
 		if (comando != null && !comando.isEmpty()) {

@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.jboss.logging.Logger;
 
+import webPlayer.audio.Player;
 import webPlayer.helper.MusicaFilenameFilter;
 import webPlayer.helper.PastaFileFilter;
 import webPlayer.model.Musica;
@@ -25,11 +27,14 @@ public class MainBusiness {
 	/**
 	 * DATABASE
 	 */
-	private static Pasta pastaRaiz = new Pasta();
+	private Pasta pastaRaiz = new Pasta();
 
-	private static String musicaTocando = "";
+	private String musicaTocando = "";
 
 	private static final Logger log = Logger.getLogger(MainBusiness.class);
+
+	@Inject
+	private Player player;
 
 	@SuppressWarnings("static-access")
 	public void alterarDiretorio(String novoDiretorio) {
@@ -101,11 +106,15 @@ public class MainBusiness {
 	}
 
 	public String getMusicaTocando() {
-		return MainBusiness.musicaTocando;
+		return musicaTocando;
 	}
 
 	public void setMusicaTocando(String musicaTocando) {
-		MainBusiness.musicaTocando = musicaTocando;
+		this.musicaTocando = musicaTocando;
+	}
+
+	public double getVolumeAtual() {
+		return player.getVolume();
 	}
 
 }

@@ -28,6 +28,8 @@ public class DiretorioServlet extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		req.getServletContext().setAttribute("mainBuss", mainBuss);
+
 		if (req.getParameterMap().containsKey("novoDiretorio")) {
 			String diretorio = req.getParameter("diretorio");
 			try {
