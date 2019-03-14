@@ -1,5 +1,9 @@
 package webPlayer;
 
+import java.io.File;
+import java.net.URL;
+import java.util.logging.Logger;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -40,6 +44,8 @@ public class Main {
 	@Inject
 	private RootServlet rootServlet;
 
+	private static final Logger logger = Logger.getLogger(Main.class.getName());
+
 	@PostConstruct
 	public void startup() {
 
@@ -48,9 +54,25 @@ public class Main {
 		tomcat.getConnector();
 		Player.startJavaFX();
 
-		Context ctx = tomcat.addWebapp("", Main.class.getClassLoader().getResource(".").getFile());
-		System.out.println("context path: " + Main.class.getClassLoader().getResource(".").getFile());
-		System.out.println("context path: " + ctx.getCatalinaBase().getAbsolutePath());
+		URL appDir = Main.class.getClassLoader().getResource("footer.jsp");
+		File parentPath = new File(appDir.getPath().replaceAll("file:", "")).getParentFile();
+		logger.info("\n********\nPasta original = " + parentPath + "\n********\n");
+
+		// setting up the JSP folder in case of JAR (production environment)
+		if (appDir.getProtocol().equals("jar")) {
+			String auxPath = parentPath.getAbsolutePath();
+			auxPath = auxPath.substring(0, auxPath.indexOf("!"));
+			parentPath = new File(new File(auxPath).getParent() + File.separator + "libs" + File.separator + "app");
+		}
+		if (!parentPath.exists()) {
+			logger.severe("A pasta [" + parentPath.getAbsolutePath() + "] não existe.");
+			System.exit(1);
+		}
+
+		String webappPath = parentPath.getAbsolutePath();
+		logger.info("********\nPasta do app = " + webappPath + "\n********");
+		Context ctx = tomcat.addWebapp("", webappPath);
+		logger.info("Catalina path: " + ctx.getCatalinaBase().getAbsolutePath());
 
 		// ROOT
 		Tomcat.addServlet(ctx, "rootServlet", rootServlet);

@@ -20,6 +20,8 @@ public class Player extends Application {
 
 	private MediaPlayer mediaPlayer;
 
+	private Runnable onEndOfMediaListener;
+
 	private static double volume = 1;
 
 	public Player() {
@@ -54,11 +56,13 @@ public class Player extends Application {
 		return instance;
 	}
 
+	@SuppressWarnings("static-access")
 	public void playMusic(String path) {
 		synchronized (blockObj) {
 			stopMusic();
 			hit = new Media(new File(path).toURI().toString());
 			mediaPlayer = new MediaPlayer(hit);
+			mediaPlayer.setOnEndOfMedia(onEndOfMediaListener);
 			mediaPlayer.setVolume(this.volume);
 			play();
 		}
@@ -89,10 +93,18 @@ public class Player extends Application {
 		return mediaPlayer.getVolume();
 	}
 
+	@SuppressWarnings("static-access")
 	public void setVolume(double volume) {
 		if (volume >= 0.00 && volume <= 1.00) {
 			mediaPlayer.setVolume(volume);
 			this.volume = volume;
+		}
+	}
+
+	public void setOnMusicFinish(Runnable listener) {
+		this.onEndOfMediaListener = listener;
+		if (mediaPlayer != null) {
+			mediaPlayer.setOnEndOfMedia(this.onEndOfMediaListener);
 		}
 	}
 }

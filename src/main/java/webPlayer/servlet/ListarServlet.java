@@ -10,12 +10,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import webPlayer.business.MainBusiness;
+import webPlayer.business.PlaylistBusiness;
 
 @Named
 public class ListarServlet extends HttpServlet {
 
 	@Inject
 	private MainBusiness mainBuss;
+
+	@Inject
+	private PlaylistBusiness playlistBuss;
 
 	/**
 	 * 
@@ -25,6 +29,10 @@ public class ListarServlet extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.getServletContext().setAttribute("mainBuss", mainBuss);
+		req.getServletContext().setAttribute("playlistBuss", playlistBuss);
+
+		// TODO Adicionar música a playlist
+
 		req.getRequestDispatcher("listar.jsp").forward(req, resp);
 	}
 }

@@ -29,7 +29,7 @@ public class MainBusiness {
 	 */
 	private Pasta pastaRaiz = new Pasta();
 
-	private String musicaTocando = "";
+	private Musica musicaTocando = new Musica("--", "", "--");
 
 	private static final Logger log = Logger.getLogger(MainBusiness.class);
 
@@ -105,12 +105,12 @@ public class MainBusiness {
 		return result;
 	}
 
-	public String getMusicaTocando() {
+	public Musica getMusicaTocando() {
 		return musicaTocando;
 	}
 
-	public void setMusicaTocando(String musicaTocando) {
-		this.musicaTocando = musicaTocando;
+	public void setMusicaTocando(Musica musicaTocando2) {
+		this.musicaTocando = musicaTocando2;
 	}
 
 	public double getVolumeAtual() {

@@ -22,7 +22,7 @@
 			<div class="col-sm-12">
 				<div class="btn-group btn-group-sm" role="group" aria-label="...">
 					<a href="/diretorio" class="btn btn-default">Diretorio</a> <a href="/listar" class="btn btn-default">Listar
-						músiucas</a><a href="/tocar" class="btn btn-default">Tocando agora</a>
+						músicas</a><a href="/tocar" class="btn btn-default">Tocando agora</a>
 				</div>
 			</div>
 		</div>

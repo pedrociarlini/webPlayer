@@ -9,7 +9,7 @@
 <%--Essa div abre no header --%>
 </div>
 <div class="panel-footer footer text-center">
-	<em>Feito por Pedro Ciarlini (C)</em>
+	<em>Feito por Pedro Ciarlini (C) 2019</em>
 </div>
 </div>
 </div>

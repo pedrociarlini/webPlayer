@@ -11,20 +11,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import webPlayer.business.MainBusiness;
+import webPlayer.business.PlaylistBusiness;
 
 @Named
 @Singleton
 public class DiretorioServlet extends HttpServlet {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private static final String DIRETORIO_JSP = "diretorio.jsp";
 
 	@Inject
 	private MainBusiness mainBuss;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	@Inject
+	private PlaylistBusiness playlistBuss;
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -34,6 +38,9 @@ public class DiretorioServlet extends HttpServlet {
 			String diretorio = req.getParameter("diretorio");
 			try {
 				mainBuss.alterarDiretorio(diretorio);
+
+				playlistBuss.addMusicasAoFim(mainBuss.listarTodasAsMusicas());
+
 				// Deu certo
 				resp.sendRedirect("listar");
 			} catch (RuntimeException ex) {
