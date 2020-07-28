@@ -2,16 +2,16 @@ package webPlayer.audio;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.Thread.State;
+import java.util.concurrent.FutureTask;
 
 import javax.inject.Singleton;
-import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
@@ -26,15 +26,15 @@ public class Player {
 	//
 	// private MediaPlayer mediaPlayer;
 
-	private LineListener onEndOfMediaListener;
-
-	private static double volume = 1;
+	private MusicaFinaizouListener musicaFinalizouListener;
 
 	private Clip clip;
 
-	private boolean pausar;
+	private boolean pausar = false;
 
-	private boolean parar;
+	private boolean parar = false;
+
+	private Thread thread;
 
 	public Player() {
 	}
@@ -44,47 +44,48 @@ public class Player {
 	 * 
 	 * @return
 	 */
-	public static Player createInstance() {
+	public static Player getInstance() {
 		synchronized (blockObj) {
 			if (instance == null) {
 				instance = new Player();
 			}
 		}
-
 		return instance;
 	}
 
 	public void playMusic(String path) {
 		synchronized (blockObj) {
 			stopMusic();
-			// AudioFilePlayer;
-			AudioInputStream audioInputStream;
+			this.parar = false;
+			this.pausar = false;
+
 			try {
 				File file = new File(path);
-				audioInputStream = AudioSystem.getAudioInputStream(file.getAbsoluteFile());
-				AudioFileFormat aff = AudioSystem.getAudioFileFormat(file);
+				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file.getAbsoluteFile());
+				// AudioFileFormat aff = AudioSystem.getAudioFileFormat(file);
 
-				AudioInputStream din = null;
 				AudioFormat baseFormat = audioInputStream.getFormat();
 				AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16, baseFormat.getChannels(),
 						baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
-				din = AudioSystem.getAudioInputStream(decodedFormat, audioInputStream);
-				// Play now.
-				rawplay(decodedFormat, din);
-				play();
+				final AudioInputStream din = AudioSystem.getAudioInputStream(decodedFormat, audioInputStream);
+				thread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							// Play now.
+							rawplay(decodedFormat, din);
+							audioInputStream.close();
+						} catch (IOException | LineUnavailableException e) {
+							System.err.println("Erro ao tocar a música: " + e.getMessage());
+							e.printStackTrace();
+						}
+					}
+				}, "Tocando " + file.getName());
+				thread.start();
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new RuntimeException(e);
 			}
-		}
-	}
-
-	public void testPlay(String filename) {
-		try {
-			File file = new File(filename);
-			AudioInputStream in = AudioSystem.getAudioInputStream(file);
-		} catch (Exception e) {
-			// Handle exception.
 		}
 	}
 
@@ -95,6 +96,7 @@ public class Player {
 			// Start
 			line.start();
 			int nBytesRead = 0, nBytesWritten = 0;
+			System.out.println("Música iniciada.");
 			while (nBytesRead != -1 && !parar) {
 				if (pausar) {
 					try {
@@ -107,6 +109,19 @@ public class Player {
 					if (nBytesRead != -1)
 						nBytesWritten = line.write(data, 0, nBytesRead);
 				}
+			}
+			if (this.parar) {
+				System.out.println("Música parada.");
+			} else {
+				System.out.println("Música finalizou.");
+				if (this.musicaFinalizouListener != null)
+					new Thread(new Runnable() {
+
+						@Override
+						public void run() {
+							Player.this.musicaFinalizouListener.musicaFinalizou();
+						}
+					}, "Player avisando fim.").start();
 			}
 			// Stop
 			line.drain();
@@ -125,45 +140,52 @@ public class Player {
 	}
 
 	public void stopMusic() {
-		if (clip != null) {
-			clip.stop();
+		this.parar = true;
+		if (thread != null) {
+			while (thread.getState() != State.TERMINATED) {
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+				}
+			}
 		}
 	}
 
 	public void pause() {
-		clip.stop();
+		this.pausar = true;
 	}
 
 	public void play() {
-		clip.start();
+		this.pausar = false;
 	}
 
 	public double getVolume() {
-		FloatControl gain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		float deltaTotal = gain.getMaximum() - gain.getMinimum();
-		float valorPercentual = gain.getValue() / deltaTotal;
-		return valorPercentual;
-	}
-
-	@SuppressWarnings("static-access")
-	public void setVolume(double volume) {
-		if (volume >= 0.00 && volume <= 1.00) {
-			// mediaPlayer.setVolume(volume);
+		if (clip != null) {
 			FloatControl gain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 			float deltaTotal = gain.getMaximum() - gain.getMinimum();
-			float valorAbosoluto = (float) (volume * deltaTotal);
-
-			float novoVolume = gain.getMinimum() + valorAbosoluto;
-			gain.setValue(novoVolume);
-			this.volume = volume;
+			float valorPercentual = gain.getValue() / deltaTotal;
+			return valorPercentual;
+		} else {
+			return 1;
 		}
 	}
 
-	public void setOnMusicFinish(LineListener listener) {
-		this.onEndOfMediaListener = listener;
+	public void setVolume(double volume) {
 		if (clip != null) {
-			clip.addLineListener(this.onEndOfMediaListener);
-			// mediaPlayer.setOnEndOfMedia(this.onEndOfMediaListener);
+			if (volume >= 0.00 && volume <= 1.00) {
+				// mediaPlayer.setVolume(volume);
+				FloatControl gain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+				float deltaTotal = gain.getMaximum() - gain.getMinimum();
+				float valorAbosoluto = (float) (volume * deltaTotal);
+
+				float novoVolume = gain.getMinimum() + valorAbosoluto;
+				gain.setValue(novoVolume);
+			}
+
 		}
+	}
+
+	public void setOnMusicFinish(MusicaFinaizouListener listener) {
+		this.musicaFinalizouListener = listener;
 	}
 }

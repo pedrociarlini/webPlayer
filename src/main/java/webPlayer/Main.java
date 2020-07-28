@@ -15,7 +15,6 @@ import org.apache.catalina.startup.Tomcat;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 
-import webPlayer.audio.Player;
 import webPlayer.servlet.DiretorioServlet;
 import webPlayer.servlet.ListarServlet;
 import webPlayer.servlet.RootServlet;

@@ -12,12 +12,13 @@ import javax.inject.Singleton;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 
+import webPlayer.audio.MusicaFinaizouListener;
 import webPlayer.audio.Player;
 import webPlayer.model.Musica;
 
 @Named
 @Singleton
-public class PlaylistBusiness implements Runnable, LineListener {
+public class PlaylistBusiness implements Runnable, LineListener, MusicaFinaizouListener {
 
 	private List<Musica> playlist = new Vector<Musica>();
 
@@ -80,5 +81,10 @@ public class PlaylistBusiness implements Runnable, LineListener {
 	@Override
 	public void update(LineEvent event) {
 		System.out.println(event + "");
+	}
+
+	@Override
+	public void musicaFinalizou() {
+		tocarProxima();
 	}
 }
