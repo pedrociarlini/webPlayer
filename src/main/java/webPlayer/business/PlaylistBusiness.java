@@ -9,13 +9,15 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 
 import webPlayer.audio.Player;
 import webPlayer.model.Musica;
 
 @Named
 @Singleton
-public class PlaylistBusiness implements Runnable {
+public class PlaylistBusiness implements Runnable, LineListener {
 
 	private List<Musica> playlist = new Vector<Musica>();
 
@@ -75,4 +77,8 @@ public class PlaylistBusiness implements Runnable {
 		return tocarMusica(numMusicaAtual + 1);
 	}
 
+	@Override
+	public void update(LineEvent event) {
+		System.out.println(event + "");
+	}
 }

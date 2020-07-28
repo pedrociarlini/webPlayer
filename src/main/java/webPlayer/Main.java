@@ -20,16 +20,17 @@ import webPlayer.servlet.DiretorioServlet;
 import webPlayer.servlet.ListarServlet;
 import webPlayer.servlet.RootServlet;
 import webPlayer.servlet.TocarMusicaServlet;
+import webPlayer.ui.MainFrame;
 
 @Named
 @Singleton
 public class Main {
 
 	public static void main(String[] args) throws LifecycleException {
+		new MainFrame();
 		Weld weld = new Weld();
 		WeldContainer container = weld.initialize();
 		container.select(Main.class).get();
-
 	}
 
 	@Inject
@@ -52,7 +53,7 @@ public class Main {
 		Tomcat tomcat = new Tomcat();
 		tomcat.setPort(8082);
 		tomcat.getConnector();
-		Player.startJavaFX();
+		// Player.startJavaFX();
 
 		URL appDir = Main.class.getClassLoader().getResource("footer.jsp");
 		File parentPath = new File(appDir.getPath().replaceAll("file:", "")).getParentFile();
